@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Liga Masturbação</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Police Apple-like -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      /* Apple-ish blue glass */
+      --bg-0:#041225;
+      --bg-1:#061a33;
+      --bg-2:#0a2a55;
+
+      --glass-bg: rgba(255,255,255,0.10);
+      --glass-bg-strong: rgba(255,255,255,0.14);
+      --glass-border: rgba(255,255,255,0.22);
+      --glass-border-soft: rgba(255,255,255,0.14);
+      --blur: blur(22px);
+
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+
+      --shadow: 0 20px 60px rgba(0,0,0,0.45);
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.28);
+
+      /* Player accents */
+      --leo:  #ff3b30; /* rouge */
+      --aubin:#ff9500; /* orange */
+      --flo:  #0a84ff; /* bleu */
+      --hugo: #34c759; /* vert */
+    }
+
+    *{ box-sizing:border-box; font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      overflow-x:hidden;
+      background:
+        radial-gradient(900px 700px at 18% 12%, rgba(10,132,255,0.42), transparent 55%),
+        radial-gradient(900px 700px at 82% 22%, rgba(94,92,230,0.28), transparent 58%),
+        radial-gradient(800px 700px at 55% 85%, rgba(0,199,190,0.18), transparent 60%),
+        linear-gradient(135deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2));
+    }
+
+    h1,h2{
+      font-weight:700;
+      letter-spacing:-0.03em;
+      margin:0 0 14px 0;
+    }
+
+    p{ margin:0; color:var(--muted); }
+
+    section{ padding:56px 6vw; }
+
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--glass-border);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow:hidden;
+    }
+
+    /* subtle inner glow */
+    .glass::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(600px 220px at 20% 0%, rgba(255,255,255,0.18), transparent 60%),
+        radial-gradient(500px 260px at 90% 30%, rgba(255,255,255,0.10), transparent 55%);
+      pointer-events:none;
+      opacity:0.9;
+    }
+
+    /* HEADER */
+    header{
+      padding:56px 6vw 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .logo-wrap{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      padding:8px;
+      display:grid;
+      place-items:center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.07));
+      border: 1px solid var(--glass-border-soft);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow: var(--shadow-soft);
+      flex:0 0 auto;
+    }
+
+    .logo-wrap img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,0.35));
+    }
+
+    header h1{
+      font-size: clamp(2.2rem, 5.6vw, 3.9rem);
+      line-height: 1.05;
+      margin:0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    header .sub{
+      margin-top:10px;
+      font-size: 1.02rem;
+      color: var(--muted);
+    }
+
+    header .pill{
+      margin-top:4px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow: var(--shadow-soft);
+      color: rgba(255,255,255,0.85);
+      font-size: 0.95rem;
+      white-space:nowrap;
+    }
+
+    /* CLASSEMENT */
+    .ranking{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:18px;
+    }
+
+    .player{
+      padding:22px 22px 20px;
+      text-align:left;
+      border:1px solid rgba(255,255,255,0.18);
+      background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.06));
+      border-radius:24px;
+      position:relative;
+      overflow:hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .player::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(520px 160px at 10% 0%, rgba(255,255,255,0.15), transparent 60%);
+      opacity:0.8;
+      pointer-events:none;
+    }
+
+    .player .name{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      position:relative;
+      z-index:1;
+    }
+
+    .player h3{
+      margin:0;
+      font-size:1.25rem;
+      letter-spacing:-0.02em;
+      color:rgba(255,255,255,0.92);
+    }
+
+    .player .points{
+      margin-top:10px;
+      font-size:1.05rem;
+      color:rgba(255,255,255,0.78);
+      position:relative;
+      z-index:1;
+    }
+
+    .player .accent{
+      position:absolute;
+      inset:0;
+      background: radial-gradient(520px 220px at 0% 0%, rgba(255,255,255,0.12), transparent 55%);
+      pointer-events:none;
+      opacity:0.8;
+    }
+
+    /* Color-coded cards */
+    .player.leo{ border-color: rgba(255,59,48,0.55); }
+    .player.leo .stripe{ background: linear-gradient(180deg, rgba(255,59,48,0.90), rgba(255,59,48,0.18)); }
+
+    .player.aubin{ border-color: rgba(255,149,0,0.55); }
+    .player.aubin .stripe{ background: linear-gradient(180deg, rgba(255,149,0,0.90), rgba(255,149,0,0.18)); }
+
+    .player.flo{ border-color: rgba(10,132,255,0.60); }
+    .player.flo .stripe{ background: linear-gradient(180deg, rgba(10,132,255,0.92), rgba(10,132,255,0.18)); }
+
+    .player.hugo{ border-color: rgba(52,199,89,0.55); }
+    .player.hugo .stripe{ background: linear-gradient(180deg, rgba(52,199,89,0.90), rgba(52,199,89,0.18)); }
+
+    .stripe{
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:10px;
+      filter: blur(0px);
+      opacity:0.95;
+    }
+
+    .first{
+      outline: 2px solid rgba(255,215,0,0.85);
+      outline-offset: 2px;
+    }
+
+    /* TIMELINE */
+    .timeline-wrapper{
+      overflow-x:auto;
+      padding-bottom:18px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .timeline{
+      display:flex;
+      gap:16px;
+      min-width:max-content;
+      padding: 2px 2px 8px;
+    }
+
+    .event{
+      min-width: 270px;
+      padding: 20px 20px 18px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,0.18);
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+      box-shadow: var(--shadow-soft);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .event::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(520px 160px at 20% 0%, rgba(255,255,255,0.14), transparent 60%);
+      pointer-events:none;
+    }
+
+    .event h4{
+      margin:0 0 10px;
+      font-size:1.08rem;
+      letter-spacing:-0.01em;
+      position:relative;
+      z-index:1;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .event ul{
+      padding-left:18px;
+      margin:0;
+      font-size:0.95rem;
+      color: rgba(255,255,255,0.78);
+      position:relative;
+      z-index:1;
+    }
+
+    .future{
+      opacity:0.62;
+      font-style:italic;
+    }
+
+    /* GRAPH */
+    .chart-container{
+      padding:26px;
+    }
+
+    canvas{ max-width:100%; }
+
+    footer{
+      text-align:center;
+      opacity:0.45;
+      padding:38px 0 46px;
+      font-size:0.92rem;
+    }
+
+    /* small helpers */
+    .section-title{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:16px;
+    }
+    .section-title .hint{
+      font-size:0.95rem;
+      color: rgba(255,255,255,0.60);
+      white-space:nowrap;
+    }
+
+    @media (max-width: 520px){
+      header{ flex-direction:column; align-items:flex-start; }
+      header .pill{ align-self:flex-start; }
+      .logo-wrap{ width:42px; height:42px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <!-- Petit emplacement pour logo.png -->
+    <div class="logo-wrap" aria-label="Logo">
+      <img src="logo.png" alt="Logo Liga Masturbação">
+    </div>
+
+
+      
+    </div>
+  </div>
+</header>
+
+<!-- CLASSEMENT GÉNÉRAL -->
+<section>
+  <div class="section-title">
+    <h2>Classement général</h2>
+  </div>
+
+  <div class="ranking">
+    <div class="player leo first">
+      <div class="stripe"></div>
+      <div class="accent"></div>
+      <div class="name">
+        <h3>🥇 Léo</h3>
+      </div>
+      <div class="points">5 points</div>
+    </div>
+
+    <div class="player aubin">
+      <div class="stripe"></div>
+      <div class="accent"></div>
+      <div class="name">
+        <h3>🥈 Aubin</h3>
+      </div>
+      <div class="points">3 points</div>
+    </div>
+
+    <div class="player flo">
+      <div class="stripe"></div>
+      <div class="accent"></div>
+      <div class="name">
+        <h3>🥉 Flo</h3>
+      </div>
+      <div class="points">2 points</div>
+    </div>
+
+    <div class="player hugo">
+      <div class="stripe"></div>
+      <div class="accent"></div>
+      <div class="name">
+        <h3>🥉 Hugo</h3>
+      </div>
+      <div class="points">2 points</div>
+    </div>
+  </div>
+</section>
+
+<!-- ÉVÉNEMENTS -->
+<section>
+  <div class="section-title">
+    <h2>Événements</h2>
+    <div class="hint">Timeline horizontale</div>
+  </div>
+
+  <div class="timeline-wrapper">
+    <div class="timeline">
+
+      <!-- PASSÉ -->
+      <div class="event">
+        <h4>🚴 Alpe d’Huez</h4>
+        <ul>
+          <li>1. Léo – 3 pts</li>
+          <li>2. Hugo – 2 pts</li>
+          <li>3. Flo – 1 pt</li>
+          <li>4. Aubin – 0 pt</li>
+        </ul>
+      </div>
+
+      <!-- DERNIER ÉVÉNEMENT -->
+      <div class="event">
+        <h4>🏃 Semi-marathon de Marrakech</h4>
+        <ul>
+          <li>1. Aubin – 3 pts</li>
+          <li>2. Léo – 2 pts</li>
+          <li>3. Flo – 1 pt</li>
+          <li>4. Hugo – 0 pt</li>
+        </ul>
+      </div>
+
+      <!-- FUTUR -->
+      <div class="event future"><h4>🏃 10 km Champs-Élysées</h4></div>
+      <div class="event future"><h4>🚴 Stage R3S</h4></div>
+      <div class="event future"><h4>🏃 Marathon de Madrid</h4></div>
+      <div class="event future"><h4>🚴 Stage Majorque</h4></div>
+      <div class="event future"><h4>🚴 Étape Tour de France</h4></div>
+      <div class="event future"><h4>🏃 100 mètres</h4></div>
+      <div class="event future"><h4>🎯 Pétanque</h4></div>
+      <div class="event future"><h4>🏔️ Randonnée / Trail – first to top</h4></div>
+      <div class="event future"><h4>🏃 400 mètres</h4></div>
+      <div class="event future"><h4>🏃 5 km</h4></div>
+
+    </div>
+  </div>
+</section>
+
+<!-- GRAPHIQUE -->
+<section>
+  <div class="section-title">
+    <h2>Tendances & évolution du classement</h2>
+    <div class="hint">Courbes par joueur</div>
+  </div>
+
+  <div class="chart-container glass">
+    <canvas id="rankingChart"></canvas>
+  </div>
+</section>
+
+<footer>
+  La Liga Masturbação ©
+</footer>
+
+<script>
+  const ctx = document.getElementById('rankingChart');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Avant Oct. 2025', 'Oct. 2025', 'Janv. 2026'],
+      datasets: [
+        {
+          label: 'Léo',
+          data: [0, 3, 5],
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--leo').trim(),
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.4
+        },
+        {
+          label: 'Aubin',
+          data: [0, 0, 3],
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--aubin').trim(),
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.4
+        },
+        {
+          label: 'Flo',
+          data: [0, 1, 2],
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--flo').trim(),
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.4
+        },
+        {
+          label: 'Hugo',
+          data: [0, 2, 2],
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--hugo').trim(),
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: { color: 'rgba(255,255,255,0.85)' }
+        },
+        tooltip: {
+          titleColor: 'rgba(255,255,255,0.95)',
+          bodyColor: 'rgba(255,255,255,0.85)',
+          backgroundColor: 'rgba(10, 20, 40, 0.75)',
+          borderColor: 'rgba(255,255,255,0.18)',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: 'rgba(255,255,255,0.75)' },
+          grid: { color: 'rgba(255,255,255,0.08)' }
+        },
+        y: {
+          ticks: { color: 'rgba(255,255,255,0.75)' },
+          grid: { color: 'rgba(255,255,255,0.08)' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
